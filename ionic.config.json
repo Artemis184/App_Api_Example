@@ -1,0 +1,7 @@
+{
+  "name": "AppCiclo2",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
