@@ -10,6 +10,17 @@
         New
       </ion-button>
     </ion-buttons>
+
+  <!-- Checkbox: Mostrar todos -->
+  <ion-buttons slot="end">
+    <ion-item lines="none">
+      <ion-label>Mostrar todos</ion-label>
+      <ion-checkbox slot="end" [(ngModel)]="mostrarTodos" (ionChange)="filtrarClientes()"></ion-checkbox>
+    </ion-item>
+  </ion-buttons>
+
+
+
   </ion-toolbar>
 </ion-header>
 
@@ -28,13 +39,14 @@
             <ion-icon slot="start" name="create"></ion-icon>
             Editar
           </ion-item-option>
-          <ion-item-option color="secondary" (click)="fun_eliminar(cliente.cli_id, ionitemsliding)">
+          <ion-item-option color="secondary" (click)="fun_eliminar(cliente, ionitemsliding)">
             <ion-icon slot="start" name="trash"></ion-icon>
             Eliminar
           </ion-item-option>
         </ion-item-options>
       </ion-item-sliding>
     </ion-list>
+
 
   
 </ion-content>

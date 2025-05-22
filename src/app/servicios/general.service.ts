@@ -5,14 +5,14 @@ import { ToastController } from '@ionic/angular';
   providedIn: 'root'
 })
 export class GeneralService {
-  proceso: number=1 //1 a local: 2 a web
+  proceso: number=2 //1 a local: 2 a web
 public URLSERV:string ="";
   constructor( private router:Router,
     private toast:ToastController) {
       if (this.proceso === 1){
         this.URLSERV = "http://localhost:3001/api/";
       }else{
-        this.URLSERV="/API/";
+        this.URLSERV="http://95.216.145.249:3018/api/";
       }
      }
     //funciones generales

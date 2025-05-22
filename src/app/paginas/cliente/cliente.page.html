@@ -35,6 +35,18 @@
       <ion-label>CIUDAD: </ion-label>
       <ion-input type="text" placeholder="CIUDAD" [(ngModel)]="objCliente.cli_ciudad"></ion-input>
     </ion-item>
-
+    <ion-item>
+      <ion-label>Cliente activo</ion-label>
+      <ion-checkbox slot="end"
+        [(ngModel)]="clienteActivo">
+      </ion-checkbox>
+    </ion-item>
   </ion-list>
+
+    <ion-button (click)="fun_grabar()" expand="block" fill="clear" shape="round">
+      GRABAR
+    </ion-button>
+
+
+
 </ion-content>

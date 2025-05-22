@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
+import { GeneralService } from './general.service';
 
 interface LoginResponse {
   token: string;
@@ -10,13 +11,17 @@ interface LoginResponse {
 @Injectable({
   providedIn: 'root'
 })
-export class AuthService {
-  private apiUrl = 'http://192.168.1.4:3001/api';
 
-  constructor(private http: HttpClient) {}
+export class AuthService {
+  constructor(private http: HttpClient,
+              private servG: GeneralService
+
+  ) {}
 
   login(usuario: string, clave: string): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, {
+    let url = this.servG.URLSERV + 'login';
+
+    return this.http.post<LoginResponse>(url, {
       usr_usuario: usuario,
       usr_clave: clave
     }).pipe(
