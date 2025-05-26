@@ -25,14 +25,12 @@ export class LoginPage {
 
   constructor(private authService: AuthService, private router: Router) {}
 
-  login() {
-    this.authService.login(this.usuario, this.clave).subscribe({
-      next: () => {
-        this.router.navigate(['/principal']); // o a la página principal
-      },
-      error: () => {
-        alert('Credenciales inválidas');
-      }
-    });
+  async login() {
+    try {
+      await this.authService.login(this.usuario, this.clave);
+      this.router.navigate(['/principal']); // o cualquier ruta que corresponda
+    } catch (error) {
+      alert('Credenciales inválidas');
+    }
   }
 }

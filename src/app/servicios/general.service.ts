@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -10,8 +11,9 @@ public URLSERV:string ="";
   constructor( private router:Router,
     private toast:ToastController) {
       if (this.proceso === 1){
-        this.URLSERV = "http://localhost:3001/api/";
+        this.URLSERV = "http://localhost:3018/api/";
       }else{
+        //this.URLSERV="http://95.216.145.249:3018/api/";
         this.URLSERV="http://95.216.145.249:3018/api/";
       }
      }
@@ -31,7 +33,8 @@ public URLSERV:string ="";
   }
 
   imagenUrl(urlimagen:any){
-    let url=this.URLSERV+urlimagen;
+    let imgurl = "http://95.216.145.249:3018"
+    let url= imgurl+urlimagen;
     return url;
   }
 }
