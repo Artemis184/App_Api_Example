@@ -1,22 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {
-  IonContent,
-  IonHeader,
-  IonTitle,
-  IonToolbar,
-} from '@ionic/angular/standalone';
-import {
-  IonicModule,
-  LoadingController,
-  IonItemSliding,
-  AlertController,
-} from '@ionic/angular';
-
+import { AlertController,IonContent, IonHeader, IonTitle, IonToolbar, LoadingController } from '@ionic/angular/standalone';
+import {IonicModule} from '@ionic/angular'
 import { GeneralService } from 'src/app/servicios/general.service';
 import { CatalogoService } from 'src/app/servicios/catalogo.service';
-
 @Component({
   selector: 'app-catalogo',
   templateUrl: './catalogo.page.html',
@@ -25,15 +13,14 @@ import { CatalogoService } from 'src/app/servicios/catalogo.service';
   imports: [IonicModule, CommonModule, FormsModule],
 })
 export class CatalogoPage implements OnInit {
-  listaProductos: any[] = [];
-  objectoRespuesta: any;
-
+  listaproductos:any[]=[];
+  mostrarSoloActivos: boolean = true;
+objetoRespuesta:any
   constructor(
-    private loading: LoadingController,
-    public servG: GeneralService,
-    private alert: AlertController,
-    private servC: CatalogoService
-  ) {}
+        private servC:CatalogoService,
+        private loading:LoadingController,
+        public servG:GeneralService
+  ) { }
 
   ngOnInit() {}
 
@@ -41,26 +28,41 @@ export class CatalogoPage implements OnInit {
     this.cargarProductos();
   }
 
-  async cargarProductos() {
-    const l = await this.loading.create();
-    await l.present();
 
-    try {
-      const respuesta = await this.servC.get_productos();
-      this.objectoRespuesta = respuesta;
-      if (this.objectoRespuesta.cant > 0) {
-        this.listaProductos = this.objectoRespuesta.data;
-      } else {
-        this.listaProductos = [];
-        this.servG.fun_Mensaje('Error: NO DATA');
-      }
-    } catch (error) {
-      this.servG.fun_Mensaje('Error al recuperar los datos');
-    } finally {
+
+async cargarProductos() {
+  const l = await this.loading.create();
+  l.present();
+
+  this.servC.get_productos().subscribe({
+    next: (respuesta: any) => {
+      this.objetoRespuesta = respuesta;
+      this.listaproductos= this.objetoRespuesta.data
+      console.log(this.listaproductos)
+      console.log(this.objetoRespuesta.prod_imagen);
+      //if (this.objetoRespuesta.cant > 0) {
+        //let todos = this.objetoRespuesta.datos;
+
+        // Aplica filtro si mostrarSoloActivos es true
+        //this.listaproductos = todos.datos//this.mostrarSoloActivos
+         // ? todos.filter((c: any) => c.cli_estado === 'A')
+          //: todos;
+
+       // console.log("Productos cargados:", this.listaproductos);
+        l.dismiss();
+      //} else {
+       // l.dismiss();
+        //this.servG.fun_Mensaje("No existe datos");
+     // }
+    },
+    error: (error) => {
       l.dismiss();
+      this.servG.fun_Mensaje("Error al recuperar los productos");
+      console.log(error);
     }
-  }
-  // Método para seleccionar una imagen desde galería y subirla
+  });
+}
+
   async seleccionarImagen(producto: any) {
     const input = document.createElement('input');
     input.type = 'file';
@@ -91,4 +93,6 @@ export class CatalogoPage implements OnInit {
 
     input.click();
   }
+
+
 }

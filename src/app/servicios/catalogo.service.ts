@@ -1,36 +1,30 @@
 import { Injectable } from '@angular/core';
 import { GeneralService } from './general.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Http } from '@capacitor-community/http';
-
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class CatalogoService {
-  constructor(private servG: GeneralService, private http: HttpClient) {}
 
-  async get_productos() {
-    const url = this.servG.URLSERV + 'productos';
+  constructor(
+      private servG:GeneralService,
+    private http:HttpClient,
+  ) { }
+
+
+  get_productos(){
+  let url = this.servG.URLSERV+"productos";
     const token = localStorage.getItem('token'); // o como guardes el JWT
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
 
-    const options = {
-      url: url,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
+  console.log(url);
 
-    try {
-      const response = await Http.get(options);
-      // response.data contiene el cuerpo de la respuesta
-      return response.data;
-    } catch (error) {
-      console.error('Error en get_productos:', error);
-      throw error;
-    }
-  }
+  return this.http.get<any>(url,  { headers });
+}
 
-  async subir_imagen(file: File, prod_id: number) {
+ async subir_imagen(file: File, prod_id: number) {
     const url = `${this.servG.URLSERV}productoputima/${prod_id}`;
     const token = localStorage.getItem('token');
 
@@ -44,12 +38,12 @@ export class CatalogoService {
 
     try {
       const response = await this.http
-        .patch(url, formData, { headers })
-        .toPromise();
-      return response;
+        .patch(url, formData, { headers });
+        return response;
     } catch (error) {
       console.error('Error en subir_imagen:', error);
       throw error;
     }
   }
-}
+
+} 

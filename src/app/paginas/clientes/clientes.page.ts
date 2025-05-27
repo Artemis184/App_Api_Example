@@ -130,6 +130,11 @@ export class ClientesPage implements OnInit {
       ],
     });
 
+<<<<<<< HEAD
     await alert.present();
   }
 }
+=======
+  
+}
+>>>>>>> prueba
