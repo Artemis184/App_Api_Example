@@ -38,4 +38,3 @@ public URLSERV:string ="";
     return url;
   }
 }
-

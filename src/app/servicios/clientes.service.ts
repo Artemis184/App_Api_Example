@@ -83,6 +83,7 @@ export class ClientesService {
   async BorrarCliente(id: number) {
     const token = localStorage.getItem('token'); // o como guardes el JWT
 
+<<<<<<< HEAD
     const headers = {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json', // 👈 este es el que faltaba
@@ -124,3 +125,6 @@ export class ClientesService {
     }
   }
 }
+=======
+} //FIN DE LA CLASE
+>>>>>>> prueba

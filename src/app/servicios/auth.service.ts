@@ -80,4 +80,13 @@ async login(usuario: string, clave: string): Promise<void> {
     const token = this.getToken();
     return !!token && !this.isTokenExpired();
   }
+<<<<<<< HEAD
 }
+=======
+
+  private handleError(error: HttpErrorResponse) {
+    console.error('Error en AuthService:', error);
+    return throwError(() => new Error('Error en la autenticación, intenta nuevamente'));
+  }
+}
+>>>>>>> prueba
