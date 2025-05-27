@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { GeneralService } from './general.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Http } from '@capacitor-community/http';
 
 @Injectable({
   providedIn: 'root',
@@ -9,118 +8,73 @@ import { Http } from '@capacitor-community/http';
 export class ClientesService {
   constructor(private servG: GeneralService, private http: HttpClient) {}
 
-  async get_clientes() {
+  get_clientes() {
     let url = this.servG.URLSERV + 'clientes';
     const token = localStorage.getItem('token'); // o como guardes el JWT
-    const options = {
-      url: url,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
 
-    try {
-      const response = await Http.get(options);
-      return response.data;
-    } catch (error) {
-      console.error;
-      throw error;
-    }
+    return this.http.get<any>(url, { headers });
   }
 
-  async get_clientexid(id: number) {
+  get_clientexid(id: number) {
     let url = this.servG.URLSERV + 'getcliente/' + id;
     const token = localStorage.getItem('token'); // o como guardes el JWT
-    const options = {
-      url: url,
-      headers: {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+    //console.log(url)
+    return this.http.get<any>(url, { headers });
+  }
+
+  GrabarCliente(objCliente: any) {
+    if (objCliente.cli_id > 0) {
+      //update
+      let url = this.servG.URLSERV + 'putcliente/' + objCliente.cli_id;
+      const token = localStorage.getItem('token'); // o como guardes el JWT
+      const headers = new HttpHeaders({
         Authorization: `Bearer ${token}`,
-      },
-    };
-    try {
-      const response = await Http.get(options);
-      return response.data;
-    } catch (error) {
-      console.error;
-      throw error;
+      });
+      //console.log(url)
+      return this.http.put<any>(url, objCliente, { headers });
+    } else {
+      let url = this.servG.URLSERV + 'postcliente/';
+      const token = localStorage.getItem('token'); // o como guardes el JWT
+      const headers = new HttpHeaders({
+        Authorization: `Bearer ${token}`,
+      });
+      //console.log(url)
+      return this.http.post<any>(url, objCliente, { headers });
+
+      //insert
     }
   }
 
-  async GrabarCliente(objCliente: any) {
+
+  
+  BorrarCliente(id:number){
+    let url = this.servG.URLSERV + 'deletecliente/' + id;
+      const token = localStorage.getItem('token'); // o como guardes el JWT
+      const headers = new HttpHeaders({
+        Authorization: `Bearer ${token}`,
+      });
+      return this.http.delete<any>(url, { headers });
+
+    }
+
+
+  DesactivarCliente(id: number) {
+    const url = this.servG.URLSERV + 'patchcliente/' + id;
     const token = localStorage.getItem('token');
-
-    const headers = {
+    const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json', // 👈 este es el que faltaba
-    };
+    });
 
-    try {
-      if (objCliente.cli_id > 0) {
-        // update
-        const url = this.servG.URLSERV + 'putcliente/' + objCliente.cli_id;
-        const response = await Http.put({
-          url,
-          headers,
-          data: objCliente,
-        });
-        return response;
-      } else {
-        // insert
-        const url = this.servG.URLSERV + 'postcliente/';
-        const response = await Http.post({
-          url,
-          headers,
-          data: objCliente,
-        });
-        return response;
-      }
-    } catch (error) {
-      console.error('Error en GrabarCliente:', error);
-      throw error;
-    }
+    const body = { cli_estado: 'I' };
+
+    return this.http.patch<any>(url, body, { headers });
   }
 
-  async BorrarCliente(id: number) {
-    const token = localStorage.getItem('token'); // o como guardes el JWT
 
-    const headers = {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json', // 👈 este es el que faltaba
-    };
-
-    try {
-      const url = this.servG.URLSERV + 'deletecliente/' + id;
-      const response = await Http.del({
-        url,
-        headers,
-      });
-      return response;
-    } catch (error) {
-      console.error('Error en BorrarCliente:', error);
-      throw error;
-    }
-  }
-
-  async DesactivarCliente(id: number) {
-    const token = localStorage.getItem('token'); // o como guardes el JWT
-
-    const headers = {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json', // 👈 este es el que faltaba
-    };
-
-    try {
-      const url = this.servG.URLSERV + 'patchcliente/' + id;
-      const response = await Http.patch({
-        url,
-        headers,
-
-        data: { cli_estado: 'I' },
-      });
-      return response;
-    } catch (error) {
-      console.error('Error en DesactivarCliente:', error);
-      throw error;
-    }
-  }
-}
+} //FIN DE LA CLASE

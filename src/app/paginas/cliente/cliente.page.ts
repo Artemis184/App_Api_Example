@@ -48,60 +48,45 @@ id: number = 0;
 
   ngOnInit() {}
 
-async ionViewWillEnter() {
+ionViewWillEnter() {
   if (this.id > 0) {
-    try {
-      const respuesta = await this.servC.get_clientexid(this.id);
-      // respuesta ya es el objeto cliente directamente
-      if (respuesta) {
-        this.objCliente = respuesta;
-        this.clienteActivo = this.objCliente.cli_estado === 'A';
-      } else {
-        throw new Error('Cliente no encontrado');
-      }
-      console.log('Cargando cliente ID:', this.id, '=>', this.objCliente);
-
-    } catch (error) {
-      console.error('Error al cargar cliente:', error);
-      this.servG.fun_Mensaje('Error al cargar cliente');
-    }
+    this.servC.get_clientexid(this.id).subscribe((respuesta: any) => {
+      this.objCliente = respuesta;
+      this.clienteActivo = this.objCliente.cli_estado === 'A';
+    });
   } else {
+    // Nuevo cliente: activar checkbox por defecto
     this.clienteActivo = true;
   }
 }
 
 
+  async fun_grabar() {
+    if (this.objCliente.cli_identificacion == '') {
+      this.servG.fun_Mensaje('Error: Ingrese la identificacion');
+    } else {
+      // ✅ Convertir booleano del checkbox al formato esperado
+      this.objCliente.cli_estado = this.clienteActivo ? 'A' : 'I'
 
-
-async fun_grabar() {
-  if (this.objCliente.cli_identificacion == '') {
-    this.servG.fun_Mensaje('Error: Ingrese la identificacion');
-  } else {
-    this.objCliente.cli_estado = this.clienteActivo ? 'A' : 'I';
-
-
-    const l = await this.loading.create();
-    await l.present();
-
-
-    try {
-      const respuesta = await this.servC.GrabarCliente(this.objCliente);
-      console.log(this.objCliente);
-      console.log(respuesta);
-
-      // Accedemos al cuerpo real de la respuesta
-      if (respuesta.data && respuesta.data.id > 0) {
-        this.servG.irA('/clientes');
-      }
-
-      this.servG.fun_Mensaje('Cliente grabado correctamente');
-    } catch (error: any) {
-      this.servG.fun_Mensaje('Error: ' + (error?.message || error));
-    } finally {
-      l.dismiss();
+      let l = await this.loading.create();
+      l.present();
+      await this.servC.GrabarCliente(this.objCliente).subscribe(
+        (respuesta: any) => {
+          console.log(respuesta);
+          l.dismiss();
+          this.servG.fun_Mensaje('Cliente grabado correctamente');
+          if (respuesta.id > 0) {
+            this.servG.irA('/clientes');
+          }
+            this.servG.irA('/clientes');
+        },
+        (error) => {
+          l.dismiss();
+          this.servG.fun_Mensaje('Error: ' + error.error.message);
+        }
+      );
     }
   }
-}
 
 
 

@@ -2,6 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
+  IonContent,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/angular/standalone';
+import {
   IonicModule,
   LoadingController,
   IonItemSliding,
@@ -23,8 +29,7 @@ export class ClientesPage implements OnInit {
 
   mostrarTodos: boolean = false;
 
-  listaClientesOriginal: any[] = []; // copia completa
-
+listaClientesOriginal: any[] = []; // copia completa
   constructor(
     private servC: ClientesService,
     private loading: LoadingController,
@@ -41,50 +46,42 @@ export class ClientesPage implements OnInit {
   }
 
   async cargarClientes() {
-    const l = await this.loading.create({ message: 'Cargando clientes...' });
-    await l.present();
-
-    try {
-      const respuesta = await this.servC.get_clientes();
-
-      // La respuesta ya es un array, así que solo parseamos si es string
-      this.listaClientesOriginal =
-        typeof respuesta.data === 'string'
-          ? JSON.parse(respuesta.data)
-          : respuesta.data;
-
-      console.log('Clientes recibidos:', this.listaClientesOriginal);
-
-      if (this.listaClientesOriginal.length > 0) {
-        this.filtrarClientes(); // Aplica filtro de mostrarTodos
-      } else {
-        this.listaClientes = [];
-        this.servG.fun_Mensaje('Error: NO DATA');
+    let l = await this.loading.create();
+    l.present();
+    this.servC.get_clientes().subscribe(
+      (respuesta: any) => {
+        this.objectoRespuesta = respuesta;
+        if (this.objectoRespuesta.cant > 0) {
+          this.listaClientesOriginal = this.objectoRespuesta.data;
+          this.filtrarClientes(); // Aplicar filtro de mostrarTodos
+        } else {
+          this.listaClientes = [];
+          this.servG.fun_Mensaje('Error: NO DATA');
+        }
+        l.dismiss();
+      },
+      (error: any) => {
+        l.dismiss();
+        this.servG.fun_Mensaje('Error al recuperar los datos');
       }
-    } catch (error: any) {
-      console.error('Error al recuperar los datos:', error);
-      this.servG.fun_Mensaje(
-        'Error: ' + (error?.message || JSON.stringify(error))
-      );
-    } finally {
-      l.dismiss();
-    }
+    );
   }
 
-  filtrarClientes() {
-    if (this.mostrarTodos) {
-      this.listaClientes = this.listaClientesOriginal;
-    } else {
-      // Mostrar solo los activos (estado 'A')
-      this.listaClientes = this.listaClientesOriginal.filter(
-        (c) => c.cli_estado === 'A'
-      );
-    }
-
-    if (this.listaClientes.length === 0) {
-      this.servG.fun_Mensaje('No hay clientes activos');
-    }
+filtrarClientes() {
+  if (this.mostrarTodos) {
+    this.listaClientes = this.listaClientesOriginal;
+  } else {
+    // Mostrar solo los activos (estado 'A')
+    this.listaClientes = this.listaClientesOriginal.filter(
+      c => c.cli_estado === 'A'
+    );
   }
+
+  if (this.listaClientes.length === 0) {
+    this.servG.fun_Mensaje('No hay clientes activos');
+  }
+}
+
 
   fun_editar(id: number, ionitemsliding: IonItemSliding) {
     this.servG.irA('/cliente/' + id);
@@ -94,7 +91,7 @@ export class ClientesPage implements OnInit {
   async fun_eliminar(cliente: any, ionitemsliding: IonItemSliding) {
     ionitemsliding.close();
 
-    const alert = await this.alert.create({
+    let alert = await this.alert.create({
       header: 'Confirmación',
       message:
         '¿Está seguro que desea eliminar el cliente [' +
@@ -104,23 +101,20 @@ export class ClientesPage implements OnInit {
         {
           text: 'Si',
           handler: async () => {
-            const l = await this.loading.create({
+            let l = await this.loading.create({
               message: 'Borrando...',
             });
-            await l.present();
+            l.present();
+            this.servC.DesactivarCliente(cliente.cli_id).subscribe((respuesta) => {
+                  this.ionViewWillEnter();
 
-            try {
-              const respuesta = await this.servC.DesactivarCliente(
-                cliente.cli_id
-              );
-
-              this.ionViewWillEnter();
-              this.servG.fun_Mensaje('Cliente eliminado correctamente');
-            } catch (error: any) {
-              this.servG.fun_Mensaje('Error: ' + (error?.message || error));
-            } finally {
               l.dismiss();
+              this.servG.fun_Mensaje('Cliente eliminado correctamente');
+            }, (error)=>{
+              l.dismiss();
+              this.servG.fun_Mensaje('Error: ' + error.error.message);  
             }
+          );
           },
         },
         {
@@ -129,7 +123,9 @@ export class ClientesPage implements OnInit {
         },
       ],
     });
-
-    await alert.present();
+    alert.present();
+  
   }
+
+  
 }
