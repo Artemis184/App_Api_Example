@@ -13,8 +13,8 @@ public URLSERV:string ="";
       if (this.proceso === 1){
         this.URLSERV = "http://localhost:3018/api/";
       }else{
-        //this.URLSERV="http://95.216.145.249:3018/api/";
         this.URLSERV="http://95.216.145.249:3018/api/";
+        //this.URLSERV="https://app-apiartemis-aq5bcr-f40fcf-95-216-145-249.traefik.me/api/";
       }
      }
     //funciones generales
@@ -33,7 +33,8 @@ public URLSERV:string ="";
   }
 
   imagenUrl(urlimagen:any){
-    let imgurl = "http://95.216.145.249:3018"
+    let imgurl = "http://95.216.145.249:3018";
+    //let imgurl = "https://app-apiartemis-aq5bcr-f40fcf-95-216-145-249.traefik.me"
     let url= imgurl+urlimagen;
     return url;
   }

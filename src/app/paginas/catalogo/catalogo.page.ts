@@ -77,15 +77,18 @@ async cargarProductos() {
       });
       await loading.present();
 
-      try {
-        await this.servC.subir_imagen(file, producto.prod_id);
-        this.servG.fun_Mensaje('Imagen actualizada correctamente');
-        // Actualizar la imagen local para ver el cambio sin recargar toda la lista
-        producto.prod_imagen = file.name; // o la ruta devuelta por el backend si la recibes
-      } catch (error) {
-        console.error('Error al subir imagen:', error);
-        this.servG.fun_Mensaje('Error al subir la imagen');
-      } finally {
+try {
+  const updatedProduct = await this.servC.subir_imagen(file, producto.prod_id);
+  this.servG.fun_Mensaje('Imagen actualizada correctamente');
+  
+  // ✅ Usa la nueva ruta de imagen devuelta por el backend
+  producto.prod_imagen = updatedProduct.prod_imagen + `?t=${Date.now()}`; // para evitar caché
+} catch (error) {
+  console.error('Error al subir imagen:', error);
+  this.servG.fun_Mensaje('Error al subir la imagen');
+}
+
+       finally {
         this.ionViewWillEnter();
         loading.dismiss();
       }
