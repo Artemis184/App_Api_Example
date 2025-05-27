@@ -31,8 +31,8 @@ public URLSERV:string ="";
   }
 
   imagenUrl(urlimagen:any){
-    let url=this.URLSERV+urlimagen;
+    let imgurl = "http://95.216.145.249:3018"
+    let url= imgurl+urlimagen;
     return url;
   }
 }
-
