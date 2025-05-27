@@ -14,7 +14,7 @@ public URLSERV:string ="";
         this.URLSERV = "http://localhost:3018/api/";
       }else{
         //this.URLSERV="http://95.216.145.249:3018/api/";
-        this.URLSERV="https://app-apiartemis-aq5bcr-978479-95-216-145-249.traefik.me/api/";
+        this.URLSERV="http://95.216.145.249:3018/api/";
       }
      }
     //funciones generales
