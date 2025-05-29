@@ -103,7 +103,7 @@ filtrarProductos() {
 
 async agregarAlCarrito(producto: any) {
   if (!this.servD.pedidoActual) {
-    this.servD.crearPedido(1, 1); // cliente ID = 1, usuario ID = 1
+    this.servD.crearPedido(2, 1); // cliente ID = 1, usuario ID = 1
   }
 
   if (this.servD.pedidoActual) {

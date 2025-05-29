@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { DetallePedido } from '../interfaces/detalle-pedido';
 import { Pedido } from '../interfaces/pedido';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, switchMap } from 'rxjs';
+import { Observable, switchMap, forkJoin } from 'rxjs';
 import { GeneralService } from './general.service';
 
 @Injectable({
@@ -17,11 +17,10 @@ export class CarritoService {
 
   crearPedido(cli_id: number, usr_id: number): Pedido {
     const nuevoPedido: Pedido = {
-      ped_id: Date.now(), // usar timestamp como ID temporal
       cli_id,
       usr_id,
-      ped_fecha: new Date(),
-      ped_estado: false,
+      ped_fecha: this.formatearFecha(new Date()),
+      ped_estado: true,
     };
     this.pedidoActual = nuevoPedido;
     this.carrito = [];
@@ -50,32 +49,59 @@ actualizarCarrito(nuevoCarrito: DetallePedido[]) {
   this.carrito = [...nuevoCarrito];
 }
 
-guardarPedido(
-  pedido: Omit<Pedido, 'ped_id'>,
-  detalles: Omit<DetallePedido, 'det_id' | 'ped_id'>[]
-): Observable<any> {
-  const token = localStorage.getItem('token'); // o como guardes tu JWT
+guardarPedidoYDetalles(): Observable<any> {
+  if (!this.pedidoActual) {
+    this.fun_Mensaje("No hay pedido actual para guardar");
+    return new Observable<void>(observer => observer.complete());
+  }
+
+  const token = localStorage.getItem('token') || '';
   const headers = new HttpHeaders({
     Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json'
   });
 
-  // Paso 1: guardar el pedido y obtener ped_id
-  return this.http.post<{ ped_id: number }>(
-    `${this.baseUrl}pedidos`,
-    pedido,
-    { headers } // <-- usar headers aquí
-  ).pipe(
-    switchMap(({ ped_id }) => {
-      // Paso 2: guardar detalles del pedido con el ped_id
-      const detallesConPedido = detalles.map(det => ({ ...det, ped_id }));
-      return this.http.post(
-        `${this.baseUrl}pedidosdetalle`,
-        detallesConPedido,
-        { headers } // <-- usar headers aquí también
+  // Creamos el pedido (sin ped_id)
+  const pedidoParaCrear: Omit<Pedido, 'ped_id'> = {
+    cli_id: this.pedidoActual.cli_id,
+    usr_id: this.pedidoActual.usr_id,
+    ped_fecha: this.formatearFecha(new Date()),
+    ped_estado: this.pedidoActual.ped_estado,
+  };
+
+  // POST pedido
+  return this.http.post<Pedido>(`${this.baseUrl}pedidos`, pedidoParaCrear, { headers }).pipe(
+    switchMap((pedidoCreado) => {
+      if (!pedidoCreado.ped_id) {
+        throw new Error("No se recibió ped_id al crear pedido");
+      }
+      // Ahora insertamos detalles, asignando ped_id real
+      const detallesConPedido = this.carrito.map(det => ({
+        prod_id: det.prod_id,
+        det_cantidad: det.det_cantidad,
+        det_precio: det.det_precio,
+        ped_id: pedidoCreado.ped_id,
+      }));
+
+      // Hacer POST para cada detalle y esperar a que terminen todos
+      const detallesObs = detallesConPedido.map(det =>
+        this.http.post(`${this.baseUrl}pedidosdetalle`, det, { headers })
       );
+
+      // Esperar a que todos los POST detalles finalicen
+      return forkJoin(detallesObs);
     })
   );
+}
+
+private formatearFecha(fecha: Date): string {
+  const yyyy = fecha.getFullYear();
+  const mm = String(fecha.getMonth() + 1).padStart(2, '0');
+  const dd = String(fecha.getDate()).padStart(2, '0');
+  const hh = String(fecha.getHours()).padStart(2, '0');
+  const min = String(fecha.getMinutes()).padStart(2, '0');
+  const ss = String(fecha.getSeconds()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`; // ✅ Aceptado por MySQL
 }
 
 

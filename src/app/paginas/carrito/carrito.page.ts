@@ -8,6 +8,7 @@ import { IonicModule } from '@ionic/angular';
 import { Pedido } from 'src/app/interfaces/pedido';
 import { CatalogoService  } from 'src/app/servicios/catalogo.service';
 import { finalize } from 'rxjs/operators';
+import { GeneralService } from 'src/app/servicios/general.service';
 
 
 interface ProductoCarrito extends DetallePedido {
@@ -28,7 +29,8 @@ export class CarritoPage implements OnInit {
   totalGeneral: number = 0;
 
   constructor(private servD: CarritoService,
-      private servC: CatalogoService
+      private servC: CatalogoService,
+      private servG: GeneralService
 
   ) {}
 
@@ -89,36 +91,21 @@ enviarPedido() {
     return;
   }
 
-  // Prepara objeto pedido sin ped_id (lo genera backend)
-  const pedidoParaEnviar: Omit<Pedido, 'ped_id'> = {
-    cli_id: this.pedido.cli_id,
-    usr_id: this.pedido.usr_id,
-    ped_fecha: this.pedido.ped_fecha,
-    ped_estado: this.pedido.ped_estado
-  };
+this.servD.guardarPedidoYDetalles().subscribe({
+  next: () => {
+    this.servG.fun_Mensaje("Pedido y detalles guardados correctamente");
+    this.servD.pedidoActual = null;
+    this.servD.carrito = [];
+    this.pedido = null;
+    this.productosCarrito = [];
+    this.totalGeneral = 0;
+  },
+  error: (err) => {
+    console.error("Error al guardar pedido y detalles", err);
+    this.servG.fun_Mensaje("Error al guardar pedido y detalles");
+  }
+});
 
-  // Prepara array de detalles sin det_id ni ped_id
-  const detallesParaEnviar: Omit<DetallePedido, 'det_id' | 'ped_id'>[] = this.productosCarrito.map(p => ({
-    prod_id: p.prod_id,
-    det_cantidad: p.det_cantidad,
-    det_precio: p.det_precio
-  }));
-
-  this.servD.guardarPedido(pedidoParaEnviar, detallesParaEnviar).subscribe({
-    next: res => {
-      this.servD.fun_Mensaje('Pedido guardado correctamente.');
-      // Opcional: limpiar carrito y pedido actual
-      this.servD.pedidoActual = null;
-      this.servD.actualizarCarrito([]);
-      this.productosCarrito = [];
-      this.totalGeneral = 0;
-      this.pedido = null;
-    },
-    error: err => {
-      console.error(err);
-      this.servD.fun_Mensaje('Error al guardar el pedido.');
-    }
-  });
 }
 
 }
