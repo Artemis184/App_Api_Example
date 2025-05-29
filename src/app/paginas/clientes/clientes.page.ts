@@ -38,7 +38,6 @@ listaClientesOriginal: any[] = []; // copia completa
   ) {}
 
   ngOnInit() {
-    this.ionViewWillEnter();
   }
 
   ionViewWillEnter() {

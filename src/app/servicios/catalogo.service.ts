@@ -47,4 +47,15 @@ async subir_imagen(file: File, prod_id: number) {
 }
 
 
+buscar_productos(texto: string) {
+  const url = `${this.servG.URLSERV}productos/buscar?texto=${encodeURIComponent(texto)}`;
+  const headers = new HttpHeaders({
+    Authorization: `Bearer ${localStorage.getItem('token') || ''}`
+  });
+
+  return this.http.get<any>(url, { headers });
+}
+
+
+
 } 

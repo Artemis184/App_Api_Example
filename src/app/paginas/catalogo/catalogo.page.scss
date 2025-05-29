@@ -1,0 +1,29 @@
+.fila-productos {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+  flex-wrap: nowrap;
+}
+
+.card-producto {
+  width: 48%;
+  display: flex;
+  flex-direction: column;
+}
+
+.contenido-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.contenido-interno {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+ion-button {
+  margin-top: auto;
+}

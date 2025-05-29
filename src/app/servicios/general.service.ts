@@ -15,6 +15,7 @@ public URLSERV:string ="";
       }else{
         this.URLSERV="http://95.216.145.249:3018/api/";
         //this.URLSERV="https://app-apiartemis-aq5bcr-f40fcf-95-216-145-249.traefik.me/api/";
+        //this.URLSERV = "https://app-aplicacionapi-4nbfpc-14e2e1-95-216-145-249.traefik.me/api/";
       }
      }
     //funciones generales
