@@ -1,0 +1,64 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Carrito</ion-title>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-title size="small" class="info-pedido">
+      Fecha: {{ pedido?.ped_fecha | date:'medium' }} &nbsp;|&nbsp;
+      Cliente ID: {{ pedido?.cli_id }} &nbsp;|&nbsp;
+      Usuario ID: {{ pedido?.usr_id }}
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div *ngIf="productosCarrito.length > 0">
+    <ion-list>
+<ion-item *ngFor="let prod of productosCarrito">
+  <ion-label>
+    <h2>{{ prod.nombre }}</h2>
+    <p>Precio unitario: ${{ prod.det_precio }}</p>  
+
+    <div class="cantidad-control">
+      <ion-button color="danger" size="small" (click)="cambiarCantidad(prod, -1)">
+        <ion-icon name="remove-circle"></ion-icon>
+      </ion-button>
+
+      <ion-input
+        type="number"
+        [(ngModel)]="prod.det_cantidad"
+        (ngModelChange)="recalcularTotales()"
+        min="1"
+        readonly
+      ></ion-input>
+
+      <ion-button color="success" size="small" (click)="cambiarCantidad(prod, 1)">
+        <ion-icon name="add-circle"></ion-icon>
+      </ion-button>
+    </div>
+
+    <p>Subtotal: ${{ (prod.det_cantidad * prod.det_precio) | number: '1.2-2' }}</p>
+  </ion-label>
+</ion-item>
+
+    </ion-list>
+
+    <ion-item lines="full">
+      <ion-label>
+        <h2>Total: ${{ totalGeneral | number: '1.2-2' }}</h2>
+      </ion-label>
+    </ion-item>
+  </div>
+
+
+
+  
+  <ion-button expand="block" color="primary" (click)="enviarPedido()">
+  Enviar Pedido
+  </ion-button>
+
+  <ion-text *ngIf="productosCarrito.length === 0">
+    <p>No hay productos en el carrito.</p>
+  </ion-text>
+</ion-content>

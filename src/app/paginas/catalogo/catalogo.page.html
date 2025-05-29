@@ -8,8 +8,8 @@
 
     <!-- Ícono de carrito a la derecha -->
 <ion-buttons slot="end">
-  <ion-button >
-    <ion-icon name="cart" slot="icon-only"></ion-icon>
+  <ion-button  (click)="fun_ir_carrito()">
+    <ion-icon name="cart" slot="icon-only" ></ion-icon>
     <ion-badge *ngIf="cantidadCarrito > 0" color="danger">{{ cantidadCarrito }}</ion-badge>
   </ion-button>
 </ion-buttons>
@@ -56,4 +56,6 @@
       </ion-card-content>
     </ion-card>
   </div>
+
+
 </ion-content>

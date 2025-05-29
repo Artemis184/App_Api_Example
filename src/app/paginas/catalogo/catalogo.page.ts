@@ -5,7 +5,16 @@ import { AlertController, LoadingController, ToastController } from '@ionic/angu
 import { IonicModule } from '@ionic/angular';
 import { GeneralService } from 'src/app/servicios/general.service';
 import { CatalogoService } from 'src/app/servicios/catalogo.service';
+import { DetallePedido } from 'src/app/interfaces/detalle-pedido';
+import { CarritoService } from 'src/app/servicios/carrito.service';
 
+
+
+
+interface ProductoCarrito extends DetallePedido {
+  nombre: string;
+  subtotal: number;
+}
 @Component({
   selector: 'app-catalogo',
   templateUrl: './catalogo.page.html',
@@ -20,14 +29,15 @@ export class CatalogoPage implements OnInit {
   textoBusqueda: string = '';
   objetoRespuesta: any;
   cantidadCarrito: number = 0;
-carrito: any[] = [];
+  carrito: DetallePedido[] = [];
 
 
   constructor(
     private servC: CatalogoService,
     private loading: LoadingController,
     private toast: ToastController,
-    public servG: GeneralService
+    public servG: GeneralService,
+    public servD: CarritoService
   ) {}
 
   ngOnInit() {}
@@ -92,24 +102,35 @@ filtrarProductos() {
 }
 
 async agregarAlCarrito(producto: any) {
-  // Agregar el producto al carrito
-  this.carrito.push(producto);
+  if (!this.servD.pedidoActual) {
+    this.servD.crearPedido(1, 1); // cliente ID = 1, usuario ID = 1
+  }
 
-  // Incrementar contador
-  this.cantidadCarrito = this.carrito.length;
+  if (this.servD.pedidoActual) {
+    const detalle: ProductoCarrito = {
+      det_id: 0,
+      prod_id: producto.prod_id,
+      ped_id: this.servD.pedidoActual.ped_id,
+      det_cantidad: 1,
+      det_precio: producto.prod_precio,
+      nombre: producto.prod_nombre,
+      subtotal: producto.prod_precio * 1,
+    };
 
+    this.servD.agregarProducto(detalle);
+    this.cantidadCarrito = this.servD.carrito.length;
 
-  console.log(this.carrito);
-
-  // Mostrar confirmación
-  const toast = await this.toast.create({
-    message: `${producto.prod_nombre} agregado al carrito`,
-    duration: 2000,
-    color: 'success'
-  });
-  await toast.present();
+    const toast = await this.toast.create({
+      message: `${producto.prod_nombre} agregado al carrito`,
+      duration: 2000,
+      color: 'success'
+    });
+    await toast.present();
+  } else {
+    this.servG.fun_Mensaje('Error al agregar al carrito: Pedido no encontrado');
+    console.error('Error al agregar al carrito: Pedido no encontrado'); 
+  }
 }
-
 
 
   async seleccionarImagen(producto: any) {
@@ -141,4 +162,11 @@ async agregarAlCarrito(producto: any) {
 
     input.click();
   }
+
+
+    fun_ir_carrito() {
+    this.servG.irA('/carrito');
+  }
+
+
 }
